@@ -55,7 +55,7 @@ This project represents a production-grade DevOps architecture where the entire 
 
 ## 🖼 Architecture Diagram
 
-![](./Images/project_arch.drawio.png)
+![](./Images/Project-arch.png)
 
 ---
 ## ☁ Infrastructure Provisioning (Terraform)
