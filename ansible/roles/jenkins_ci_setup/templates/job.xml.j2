@@ -1,0 +1,25 @@
+<flow-definition plugin="workflow-job">
+  <description>CloudDevOps Project CI</description>
+
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition">
+    <scm class="hudson.plugins.git.GitSCM">
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>{{ repo_url }}</url>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>*/main</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+    </scm>
+
+    <!-- Jenkinsfile location in new repo -->
+    <scriptPath>src/Jenkinsfile</scriptPath>
+
+    <lightweight>true</lightweight>
+  </definition>
+
+  <disabled>false</disabled>
+</flow-definition>

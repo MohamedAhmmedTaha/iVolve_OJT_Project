@@ -1,0 +1,19 @@
+jenkins:
+  systemMessage: "Configured automatically by Ansible"
+
+  globalLibraries:
+    libraries:
+      - name: "ci-lib"
+        defaultVersion: "main"
+        implicit: false
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "{{ repo_url }}"
+                traits:
+                  - gitBranchDiscovery()
+                extensions:
+                  - relativeTargetDirectory:
+                      relativeTargetDir: "jenkins-shared-library"

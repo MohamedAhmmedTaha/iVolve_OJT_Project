@@ -1,0 +1,157 @@
+---
+# tasks file for jenkins_ci_setup
+
+# ─────────────────────────────────────────
+# 0- Install python3-jenkins (PEP 668 Safe)
+# ─────────────────────────────────────────
+- name: Ensure python3-jenkins installed via APT
+  apt:
+    name:
+      - python3
+      - python3-jenkins
+    state: present
+    update_cache: yes
+  become: yes
+  become_method: sudo
+  become_user: root
+  tags: [jenkins_ci_setup]
+
+# ─────────────────────────────────────────
+# 1- Wait for Jenkins to be ready
+# ─────────────────────────────────────────
+- name: Wait for Jenkins port to be open
+  wait_for:
+    port: 8080
+    delay: 10
+    timeout: 600
+    state: started
+  tags: [jenkins_ci_setup]
+
+- name: Wait for Jenkins login page to be ready
+  uri:
+    url: http://localhost:8080/login
+    status_code: 200
+  register: jenkins_ready
+  until: jenkins_ready.status == 200
+  retries: 30
+  delay: 10
+  tags: [jenkins_ci_setup]
+
+# ─────────────────────────────────────────
+# 2- Get initial admin password
+# ─────────────────────────────────────────
+- name: Get initial admin password
+  command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_initial_pass
+  changed_when: false
+  become: yes
+  tags: [jenkins_ci_setup]
+
+- name: Show initial password (verbose only)
+  debug:
+    msg: "Jenkins Initial Password → {{ jenkins_initial_pass.stdout }}"
+  when: ansible_verbosity >= 1
+  tags: [jenkins_ci_setup]
+
+# ─────────────────────────────────────────
+# 3- Install required Jenkins plugins
+# ─────────────────────────────────────────
+- name: Install required Jenkins plugins
+  community.general.jenkins_plugin:
+    name:
+      - git
+      - github
+      - workflow-aggregator
+      - pipeline-stage-view
+      - workflow-cps-global-lib
+      - docker-workflow
+      - credentials-binding
+      - configuration-as-code
+    state: present
+    url: http://localhost:8080
+    url_username: admin
+    url_password: "{{ jenkins_initial_pass.stdout }}"
+  register: plugin_result
+  until: plugin_result is succeeded
+  retries: 3
+  delay: 30
+  tags: [jenkins_ci_setup]
+
+- name: Wait 60 seconds after plugin installation
+  pause:
+    seconds: 60
+  tags: [jenkins_ci_setup]
+
+# ─────────────────────────────────────────
+# 4- Create Docker Hub Credential
+# ─────────────────────────────────────────
+- name: Create Docker Hub credential if not exists
+  community.general.jenkins_script:
+    url: http://localhost:8080
+    user: admin
+    password: "{{ jenkins_initial_pass.stdout }}"
+    script: |
+      import jenkins.model.*
+      import com.cloudbees.plugins.credentials.*
+      import com.cloudbees.plugins.credentials.common.*
+      import com.cloudbees.plugins.credentials.domains.*
+      import com.cloudbees.plugins.credentials.impl.*
+
+      def store = Jenkins.instance
+        .getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0]
+        .getStore()
+
+      def existing = store.getCredentials(Domain.global())
+        .find { it.id == "docker-hub-cred" }
+
+      if (existing) {
+        return "Docker Hub credential already exists"
+      } else {
+        def cred = new UsernamePasswordCredentialsImpl(
+          CredentialsScope.GLOBAL,
+          "docker-hub-cred",
+          "Docker Hub Credential",
+          "{{ docker_hub_username }}",
+          "{{ docker_hub_pass }}"
+        )
+        store.addCredentials(Domain.global(), cred)
+        return "Docker Hub credential created"
+      }
+  tags: [jenkins_ci_setup]
+
+# ─────────────────────────────────────────
+#  5- Create Docker Hub Credential
+# ─────────────────────────────────────────
+- name: Create GitHub credential if not exists
+  community.general.jenkins_script:
+    url: http://localhost:8080
+    user: admin
+    password: "{{ jenkins_initial_pass.stdout }}"
+    script: |
+      import jenkins.model.*
+      import com.cloudbees.plugins.credentials.*
+      import com.cloudbees.plugins.credentials.common.*
+      import com.cloudbees.plugins.credentials.domains.*
+      import com.cloudbees.plugins.credentials.impl.*
+
+      def store = Jenkins.instance
+        .getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0]
+        .getStore()
+
+      def existing = store.getCredentials(Domain.global())
+        .find { it.id == "github-cred" }
+
+      if (existing) {
+        return "GitHub credential already exists"
+      } else {
+        def cred = new UsernamePasswordCredentialsImpl(
+          CredentialsScope.GLOBAL,
+          "github-cred",
+          "GitHub Personal Access Token",
+          "{{ github_username }}",
+          "{{ github_token }}"
+        )
+        store.addCredentials(Domain.global(), cred)
+        return "GitHub credential created"
+      }
+  tags: [jenkins_ci_setup]
