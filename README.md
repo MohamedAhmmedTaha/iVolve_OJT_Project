@@ -478,6 +478,6 @@ This enables full observability of the deployed application running on EKS.
 ## Author
 - Mohamed Ahmed Mohamed Taha  
 
-**DevOps & Cloud Engineers**
+**DevOps & Cloud Engineer**
 
 
