@@ -4,6 +4,12 @@ Enterprise End-to-End DevOps Project implementing full CI/CD and GitOps workflow
 
 ---
 
+## 🖼 Architecture Diagram
+
+![](./Images/Project-arch.png)
+
+---
+
 ## 📌 Architecture Overview
 
 This project represents a production-grade DevOps architecture where the entire lifecycle—from infrastructure provisioning to application deployment and monitoring—is fully automated.
@@ -53,11 +59,6 @@ This project represents a production-grade DevOps architecture where the entire 
 
 ---
 
-## 🖼 Architecture Diagram
-
-![](./Images/Project-arch.png)
-
----
 ## ☁ Infrastructure Provisioning (Terraform)
 
 📁 Directory: `terraform/`
