@@ -420,6 +420,7 @@ Ensure:
 * Application target is **UP**
 * Node exporter target is **UP**
 
+![](./Images/prometheus.png)
 ---
 
 #### Access Grafana (EKS LoadBalancer)
@@ -462,6 +463,8 @@ rate(http_requests_total[1m])
 ```
 
 This enables full observability of the deployed application running on EKS.
+
+![](./Images/grafana.png)
 
 ---
 
