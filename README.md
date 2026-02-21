@@ -188,7 +188,7 @@ Benefits:
 
 ## 📊 Monitoring & Observability
 
-📁 Directory: `monitoring/` (Prometheus & Grafana manifests)
+📁 Directory: `k8s/` (Prometheus & Grafana manifests)
 
 ### Overview
 
