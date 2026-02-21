@@ -1,4 +1,4 @@
-# 🚀 CloudDevOpsProject
+# 🚀 iVolve Cloud DevOps Project
 
 Enterprise End-to-End DevOps Project implementing full CI/CD and GitOps workflow on AWS using Terraform, Ansible (with Vault), Jenkins, Kubernetes (EKS), ArgoCD, Prometheus, and Grafana.
 
